@@ -3,8 +3,11 @@ import { Settings } from 'lucide-react';
 import Navigation from './components/Navigation';
 import HeroSection from './components/HeroSection';
 import DateTimeBar from './components/DateTimeBar';
+import FeaturedPosts from './components/FeaturedPosts';
 import NewsGrid from './components/NewsGrid';
 import SportsSection from './components/SportsSection';
+import CinemaTop5 from './components/CinemaTop5';
+import CinemaSchedules from './components/CinemaSchedules';
 import CinemaSection from './components/CinemaSection';
 import Footer from './components/Footer';
 import AdminDashboard from './components/AdminDashboard';
@@ -69,17 +72,16 @@ function App() {
       <div ref={homeRef}>
         <HeroSection />
         <DateTimeBar />
+        <FeaturedPosts />
       </div>
 
       <div ref={newsRef}>
         <NewsGrid />
       </div>
 
-      <div ref={entertainmentRef} className="py-12 px-4 bg-gray-800">
-        <div className="max-w-7xl mx-auto text-center">
-          <h2 className="text-4xl font-bold text-white mb-4">አሪፍ መዝናኛ</h2>
-          <p className="text-gray-300">Entertainment content coming soon!</p>
-        </div>
+      <div ref={entertainmentRef}>
+        <CinemaTop5 />
+        <CinemaSchedules />
       </div>
 
       <div ref={sportRef}>

@@ -24,14 +24,14 @@ export default function Navigation({ onNavigate }: NavigationProps) {
   return (
     <nav className="sticky top-0 z-50 bg-gradient-to-r from-[#4A148C] via-[#6A1B9A] to-[#D81B60] shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-between items-center h-24 md:h-28">
           <div className="flex items-center">
             <img
               src="/ARIFFF-removebg-preview_(1).png"
               alt="Ariff Media"
-              className="h-20 w-auto filter drop-shadow-lg"
+              className="h-32 md:h-40 w-auto filter drop-shadow-2xl"
               style={{
-                filter: 'drop-shadow(0 4px 12px rgba(216, 27, 96, 0.6))',
+                filter: 'drop-shadow(0 6px 20px rgba(216, 27, 96, 0.8)) drop-shadow(0 0 30px rgba(138, 43, 226, 0.4))',
                 imageRendering: 'crisp-edges'
               }}
             />

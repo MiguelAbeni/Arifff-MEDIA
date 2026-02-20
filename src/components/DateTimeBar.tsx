@@ -13,13 +13,17 @@ export default function DateTimeBar() {
   }, []);
 
   const getEthiopianDate = (date: Date) => {
-    const year = date.getFullYear();
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
+    const gregYear = date.getFullYear();
+    const gregMonth = date.getMonth() + 1;
+    const gregDay = date.getDate();
 
-    let ethYear = year - 7;
-    let ethMonth = month + 4;
-    let ethDay = day + 1;
+    let ethYear = gregYear - 8;
+    let ethMonth = gregMonth + 4;
+    let ethDay = gregDay + 1;
+
+    if (gregMonth < 9 && gregDay < 11) {
+      ethYear -= 1;
+    }
 
     if (ethMonth > 13) {
       ethMonth -= 13;
@@ -27,7 +31,7 @@ export default function DateTimeBar() {
     }
 
     if (ethDay > 30) {
-      ethDay = 1;
+      ethDay -= 30;
       ethMonth += 1;
     }
 

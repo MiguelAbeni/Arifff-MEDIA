@@ -96,6 +96,42 @@ Deno.serve(async (req: Request) => {
       }
 
       result = { success: true, message: "Movie added successfully" };
+    } else if (type === "schedule") {
+      const { error } = await supabase.from("cinema_schedules_extended").insert([
+        {
+          cinema_name: data.cinema_name,
+          movie_title: data.movie_title,
+          genre: data.genre || "",
+          show_time: data.show_time,
+          day_of_week: data.day_of_week,
+        },
+      ]);
+
+      if (error) {
+        return new Response(
+          JSON.stringify({ error: error.message }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      result = { success: true, message: "Schedule added successfully" };
+    } else if (type === "featured") {
+      const { error } = await supabase.from("featured_posts").upsert([
+        {
+          post_id: data.post_id || "00000000-0000-0000-0000-000000000000",
+          post_type: data.post_type || "news",
+          position: parseInt(data.position) || 1,
+        },
+      ], { onConflict: "post_type,position" });
+
+      if (error) {
+        return new Response(
+          JSON.stringify({ error: error.message }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      result = { success: true, message: "Featured post updated successfully" };
     } else {
       return new Response(
         JSON.stringify({ error: "Invalid content type" }),

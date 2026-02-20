@@ -7,7 +7,7 @@ interface AdminDashboardProps {
 }
 
 export default function AdminDashboard({ onClose }: AdminDashboardProps) {
-  const [activeTab, setActiveTab] = useState<'news' | 'sports' | 'cinema'>('news');
+  const [activeTab, setActiveTab] = useState<'news' | 'sports' | 'cinema' | 'schedules' | 'featured'>('news');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
@@ -42,6 +42,21 @@ export default function AdminDashboard({ onClose }: AdminDashboardProps) {
     description: '',
   });
   const [cinemaImagePreview, setCinemaImagePreview] = useState<string>('');
+
+  // Cinema schedules form state
+  const [scheduleForm, setScheduleForm] = useState({
+    cinema_name: 'አለም ሲኒማ',
+    movie_title: '',
+    genre: '',
+    show_time: '',
+    day_of_week: 'ሰኞ',
+  });
+
+  // Featured posts form state
+  const [featuredForm, setFeaturedForm] = useState({
+    post_type: 'news',
+    position: '1',
+  });
 
   const handleNewsSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -149,6 +164,60 @@ export default function AdminDashboard({ onClose }: AdminDashboardProps) {
     setLoading(false);
   };
 
+  const handleScheduleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setMessage(null);
+
+    try {
+      await postContent('schedule', {
+        cinema_name: scheduleForm.cinema_name,
+        movie_title: scheduleForm.movie_title,
+        genre: scheduleForm.genre,
+        show_time: scheduleForm.show_time,
+        day_of_week: scheduleForm.day_of_week,
+      });
+
+      setMessage({ type: 'success', text: 'Schedule added successfully!' });
+      setScheduleForm({
+        cinema_name: 'አለም ሲኒማ',
+        movie_title: '',
+        genre: '',
+        show_time: '',
+        day_of_week: 'ሰኞ',
+      });
+      setTimeout(() => window.location.reload(), 2000);
+    } catch (error) {
+      setMessage({ type: 'error', text: `Error: ${error instanceof Error ? error.message : 'Failed to add schedule'}` });
+    }
+
+    setLoading(false);
+  };
+
+  const handleFeaturedSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setMessage(null);
+
+    try {
+      await postContent('featured', {
+        post_type: featuredForm.post_type,
+        position: featuredForm.position,
+      });
+
+      setMessage({ type: 'success', text: 'Featured post updated successfully!' });
+      setFeaturedForm({
+        post_type: 'news',
+        position: '1',
+      });
+      setTimeout(() => window.location.reload(), 2000);
+    } catch (error) {
+      setMessage({ type: 'error', text: `Error: ${error instanceof Error ? error.message : 'Failed to update featured post'}` });
+    }
+
+    setLoading(false);
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4">
       <div className="bg-gray-900 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
@@ -177,18 +246,18 @@ export default function AdminDashboard({ onClose }: AdminDashboardProps) {
           </div>
         )}
 
-        <div className="flex border-b border-gray-700">
-          {(['news', 'sports', 'cinema'] as const).map((tab) => (
+        <div className="flex border-b border-gray-700 overflow-x-auto">
+          {(['news', 'sports', 'cinema', 'schedules', 'featured'] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`flex-1 py-4 px-6 font-semibold transition-colors ${
+              className={`py-4 px-4 md:px-6 font-semibold transition-colors whitespace-nowrap text-sm md:text-base ${
                 activeTab === tab
                   ? 'bg-[#D81B60] text-white border-b-2 border-[#D81B60]'
                   : 'text-gray-300 hover:text-white'
               }`}
             >
-              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              {tab === 'schedules' ? 'Schedule' : tab === 'featured' ? 'Featured' : tab.charAt(0).toUpperCase() + tab.slice(1)}
             </button>
           ))}
         </div>
@@ -512,6 +581,143 @@ export default function AdminDashboard({ onClose }: AdminDashboardProps) {
               >
                 {loading ? <Loader size={20} className="animate-spin" /> : <Upload size={20} />}
                 <span>{loading ? 'Adding...' : 'Add Movie'}</span>
+              </button>
+            </form>
+          )}
+
+          {activeTab === 'schedules' && (
+            <form onSubmit={handleScheduleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-white font-medium mb-2">Cinema/Theater</label>
+                <select
+                  value={scheduleForm.cinema_name}
+                  onChange={(e) =>
+                    setScheduleForm({ ...scheduleForm, cinema_name: e.target.value })
+                  }
+                  className="w-full bg-gray-800 border border-gray-700 rounded px-4 py-2 text-white focus:border-[#D81B60] outline-none transition-colors"
+                >
+                  <option>አለም ሲኒማ</option>
+                  <option>ሀገር ፍቅር ትያትር</option>
+                  <option>ብሔራዊ ትያትር</option>
+                  <option>ጋራድ ሞል ሲኒማ</option>
+                  <option>ልዑል ሲኒማ</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-white font-medium mb-2">Movie Title</label>
+                <input
+                  type="text"
+                  required
+                  value={scheduleForm.movie_title}
+                  onChange={(e) =>
+                    setScheduleForm({ ...scheduleForm, movie_title: e.target.value })
+                  }
+                  className="w-full bg-gray-800 border border-gray-700 rounded px-4 py-2 text-white focus:border-[#D81B60] outline-none transition-colors"
+                  placeholder="Movie title"
+                />
+              </div>
+
+              <div>
+                <label className="block text-white font-medium mb-2">Genre</label>
+                <input
+                  type="text"
+                  value={scheduleForm.genre}
+                  onChange={(e) =>
+                    setScheduleForm({ ...scheduleForm, genre: e.target.value })
+                  }
+                  className="w-full bg-gray-800 border border-gray-700 rounded px-4 py-2 text-white focus:border-[#D81B60] outline-none transition-colors"
+                  placeholder="e.g., Drama, Action"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-white font-medium mb-2">Show Time</label>
+                  <input
+                    type="text"
+                    required
+                    value={scheduleForm.show_time}
+                    onChange={(e) =>
+                      setScheduleForm({ ...scheduleForm, show_time: e.target.value })
+                    }
+                    className="w-full bg-gray-800 border border-gray-700 rounded px-4 py-2 text-white focus:border-[#D81B60] outline-none transition-colors"
+                    placeholder="e.g., 7:00 PM"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-white font-medium mb-2">Day</label>
+                  <select
+                    value={scheduleForm.day_of_week}
+                    onChange={(e) =>
+                      setScheduleForm({ ...scheduleForm, day_of_week: e.target.value })
+                    }
+                    className="w-full bg-gray-800 border border-gray-700 rounded px-4 py-2 text-white focus:border-[#D81B60] outline-none transition-colors"
+                  >
+                    <option>ሰኞ</option>
+                    <option>ማክሰኞ</option>
+                    <option>ሮብ</option>
+                    <option>ሐሙስ</option>
+                    <option>ዓርብ</option>
+                    <option>ቅዳሜ</option>
+                    <option>እሁድ</option>
+                  </select>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-gradient-to-r from-[#D81B60] to-[#4A148C] text-white font-bold py-2 rounded hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center space-x-2"
+              >
+                {loading ? <Loader size={20} className="animate-spin" /> : <Upload size={20} />}
+                <span>{loading ? 'Adding...' : 'Add Schedule'}</span>
+              </button>
+            </form>
+          )}
+
+          {activeTab === 'featured' && (
+            <form onSubmit={handleFeaturedSubmit} className="space-y-4">
+              <div>
+                <label className="block text-white font-medium mb-2">Post Type</label>
+                <select
+                  value={featuredForm.post_type}
+                  onChange={(e) =>
+                    setFeaturedForm({ ...featuredForm, post_type: e.target.value })
+                  }
+                  className="w-full bg-gray-800 border border-gray-700 rounded px-4 py-2 text-white focus:border-[#D81B60] outline-none transition-colors"
+                >
+                  <option value="news">News</option>
+                  <option value="entertainment">Entertainment</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-white font-medium mb-2">Position</label>
+                <select
+                  value={featuredForm.position}
+                  onChange={(e) =>
+                    setFeaturedForm({ ...featuredForm, position: e.target.value })
+                  }
+                  className="w-full bg-gray-800 border border-gray-700 rounded px-4 py-2 text-white focus:border-[#D81B60] outline-none transition-colors"
+                >
+                  <option value="1">Featured Slot 1</option>
+                  <option value="2">Featured Slot 2</option>
+                </select>
+              </div>
+
+              <p className="text-gray-400 text-sm">
+                Select posts to be featured on the homepage. Use the news or entertainment section to add posts first.
+              </p>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-gradient-to-r from-[#D81B60] to-[#4A148C] text-white font-bold py-2 rounded hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center space-x-2"
+              >
+                {loading ? <Loader size={20} className="animate-spin" /> : <Upload size={20} />}
+                <span>{loading ? 'Updating...' : 'Set Featured Post'}</span>
               </button>
             </form>
           )}
